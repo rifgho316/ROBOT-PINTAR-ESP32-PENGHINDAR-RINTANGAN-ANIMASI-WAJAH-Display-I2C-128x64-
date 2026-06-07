@@ -1,52 +1,49 @@
-Proyek ini adalah kode sumber untuk membuat robot pintar berbasis ESP32 yang dapat berjalan dan menghindari rintangan secara otomatis. Robot ini dilengkapi dengan layar OLED SSD1306 sebagai "wajah" yang menampilkan berbagai ekspresi organik dan sangat mulus (ultra-smooth).
+# Robot Penghindar Rintangan ESP32
 
-Berbeda dengan animasi OLED pada umumnya yang menggunakan delay dan pergantian frame kaku, proyek ini menggunakan perhitungan matematika fisika (gelombang sinus/trigonometri) dan fungsi millis() untuk merender ekspresi secara real-time tanpa membuat sistem robot mengalami lag.
+Proyek ini berisi kode sumber untuk robot beroda penghindar rintangan (*obstacle-avoiding robot*) otonom. Robot ini dirancang untuk berjalan maju dan secara otomatis menghindari halangan di sekitarnya, dilengkapi dengan layar OLED yang menampilkan animasi ekspresi wajah mulus tanpa mengganggu performa pembacaan sensor.
 
-✨ Fitur Utama:
+## 🌟 Fitur Utama
+* **Animasi Fisika Real-Time:** Menampilkan berbagai siklus ekspresi (Bahagia, Berkedip, Kaget, Malu/Tersipu, Marah, dan Tertawa melompat) menggunakan perhitungan matematika trigonometri tanpa jeda kaku.
+* **Penghindar Rintangan Cerdas:** Menggunakan sensor ultrasonik dan motor servo untuk mengecek jarak dari jalur kiri dan kanan saat arah jalan di depannya terhalang.
+* **Non-Blocking Sensor:** Animasi diproses menggunakan fungsi `millis()` (bukan `delay()`), sehingga sensor tetap responsif dan robot bisa mengerem instan saat ada halangan mendadak.
+* **Kompensasi Motor:** Terdapat variabel kecepatan mandiri untuk roda kiri dan kanan agar robot berjalan lurus sempurna.
 
-Penghindar Rintangan Cerdas: Menggunakan sensor ultrasonik HC-SR04 yang dipasang di atas motor servo. Saat mendeteksi halangan, robot akan berhenti, menengok ke kiri dan kanan, lalu memilih jalur yang kosong.
+## 🛠️ Komponen yang Dibutuhkan
+1. Mikrokontroler ESP32
+2. 1x Layar OLED 0.96" (SSD1306)
+3. 1x Sensor Ultrasonik (HC-SR04)
+4. 1x Motor Servo (contoh: Micro Servo SG90)
+5. 1x Motor Driver (contoh: L298N)
+6. 2x Motor DC beserta Roda
+7. Baterai / Power Supply
+8. Sasis Robot
 
-Animasi Fisika Real-Time: Menampilkan berbagai siklus ekspresi (Bahagia, Berkedip, Kaget, Malu/Tersipu, Marah, dan Tertawa melompat) dengan transisi gerak yang sangat mulus.
+## 📌 Konfigurasi Pin
 
-Non-Blocking Sensor: Karena animasi tidak menggunakan fungsi delay(), sensor jarak tetap membaca data dengan kecepatan maksimal, sehingga robot bisa mengerem instan saat ada rintangan mendadak.
+| Komponen | Nama Pin | Pin ESP32 | Keterangan |
+| :--- | :--- | :--- | :--- |
+| **OLED SSD1306** | SDA | `21` | Komunikasi I2C Default |
+| | SCL | `22` | Komunikasi I2C Default |
+| **Sensor Ultrasonik**| TRIG | `12` | Output Trigger |
+| | ECHO | `13` | Input Echo |
+| **Servo Leher** | SIGNAL | `14` | Output PWM Servo |
+| **Motor Kiri** | ENA | `4` | PWM Speed Control |
+| | MAJU | `16` | Direction 1 |
+| | MUNDUR | `17` | Direction 2 |
+| **Motor Kanan** | ENB | `19` | PWM Speed Control |
+| | MAJU | `5` | Direction 3 |
+| | MUNDUR | `18` | Direction 4 |
 
-Kompensasi Motor: Terdapat variabel pengaturan kecepatan agar robot dapat berjalan lurus sempurna meskipun ada perbedaan kualitas pada kedua motor DC.
+## ⚙️ Cara Penyesuaian (Tuning)
+* `KECEPATAN_JALAN_KIRI = 69;` & `KECEPATAN_JALAN_KANAN = 60;` (Ubah nilai ini jika robot berbelok sendiri saat seharusnya berjalan lurus).
+* Batas rintangan: Pada baris `if (jarakDepan > 0 && jarakDepan <= 20)`, ubah angka `20` menjadi lebih besar jika kamu ingin robot merespons halangan dari jarak yang lebih jauh.
+* `intervalAnimasi = 10000;` (Durasi tunggu untuk berganti animasi siklus. Standar: 10.000 ms / 10 detik).
+* `intervalKedip = 3000;` (Durasi siklus kedipan mata biasa. Standar: 3.000 ms / 3 detik).
 
-🛠️ Komponen yang Dibutuhkan:
-
-Mikrokontroler ESP32
-
-Layar OLED 0.96" (SSD1306) - Komunikasi I2C
-
-Sensor Ultrasonik HC-SR04
-
-Motor Servo (Micro Servo SG90)
-
-Driver Motor DC (L298N atau sejenisnya)
-
-2x Motor DC beserta Roda (Chassis Smart Car 2WD)
-
-Baterai Lipo / 2x 18650 beserta modul step-down (jika diperlukan)
-
-📌 Konfigurasi Pin (Wiring):
-
-Ultrasonik: TRIG (Pin 12), ECHO (Pin 13)
-
-Servo: Pin 14
-
-OLED: SDA (Pin 21 default), SCL (Pin 22 default)
-
-Driver Motor: * ENA (Pin 4), ENB (Pin 19)
-
-Roda Kiri: Maju (Pin 16), Mundur (Pin 17)
-
-Roda Kanan: Maju (Pin 5), Mundur (Pin 18)
-
-📚 Pustaka (Library) yang Wajib Diinstal:
-Pastikan kamu sudah menginstal library berikut melalui Arduino Library Manager sebelum melakukan compile:
-
-Adafruit_GFX.h
-
-Adafruit_SSD1306.h
-
-ESP32Servo.h
+## 🚀 Cara Penggunaan
+1. Rangkai komponen sesuai dengan tabel Konfigurasi Pin di atas.
+2. Pastikan *library* wajib sudah terinstal di Arduino IDE: `Adafruit_GFX`, `Adafruit_SSD1306`, dan `ESP32Servo`.
+3. Buka kode ini menggunakan Arduino IDE.
+4. Pilih *board* ESP32 yang sesuai di Arduino IDE.
+5. *Compile* dan *Upload* kode ke mikrokontroler ESP32.
+6. Taruh robot di lantai, nyalakan sumber daya, dan perhatikan bagaimana robot mengeksplorasi ruangan!
